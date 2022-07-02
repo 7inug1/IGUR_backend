@@ -1,22 +1,61 @@
 /* eslint-disable no-unused-vars */
 require("dotenv").config();
+const express = require("express");
+const app = express();
+const PORT = 8000;
 const puppeteer = require("puppeteer");
+
+const { Storage } = require("@google-cloud/storage");
+const storage = new Storage();
+
 // elonrmuskk
 // jiyongkim_official
 // mason_lisa
 // michelilove_88
 const USERNAME = "mason_lisa";
+const crawledData = {};
+
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
+app.listen(PORT, () => {
+  console.log("listening on port " + PORT);
+});
+
+// async function quickstart() {
+//   // Imports the Google Cloud client library
+//   const language = require("@google-cloud/language");
+
+//   // Instantiates a client
+//   const client = new language.LanguageServiceClient({
+//     keyFilename: "key.json",
+//   });
+
+//   // The text to analyze
+//   const text = "Hello, world!";
+
+//   const document = {
+//     content: text,
+//     type: "PLAIN_TEXT",
+//   };
+
+//   // Detects the sentiment of the text
+//   const [result] = await client.analyzeSentiment({ document: document });
+//   const sentiment = result.documentSentiment;
+
+//   console.log(`Text: ${text}`);
+//   console.log(`Sentiment score: ${sentiment.score}`);
+//   console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
+// }
+
+// quickstart();
 
 (async () => {
   class InstagramUser {
-    constructor(username, name, profileImgSrc, introduction, numberOfPosts, numberOfFollowers, numberOfFollowings) {
-      this.username = username;
-      this.name = name;
-      this.profileImgSrc = profileImgSrc;
-      this.introduction = introduction;
-      this.numberOfPosts = numberOfPosts;
-      this.numberOfFollowers = numberOfFollowers;
-      this.numberOfFollowings = numberOfFollowings;
+    constructor(profile, contents) {
+      this.profile = profile;
+      this.contents = contents;
     }
   }
 
@@ -27,11 +66,8 @@ const USERNAME = "mason_lisa";
   await page.goto(`https://www.picuki.com/profile/${USERNAME}`, { waitUntil: "networkidle2" });
 
   // <profile>
-  const instagramUser = new InstagramUser();
-
   const content = await page.$("div.wrapper div.content");
   const profileHeader = await page.$(".wrapper .profile-header");
-  console.log("content", content);
 
   const username = await profileHeader.$eval(".profile-info .profile-name-top", (element) => {
     return element.textContent;
@@ -41,6 +77,9 @@ const USERNAME = "mason_lisa";
   });
   const profileImgSrc = await profileHeader.$eval(".profile-avatar .profile-avatar-image", (element) => {
     return element.src;
+  });
+  const profileImgAlt = await profileHeader.$eval(".profile-avatar .profile-avatar-image", (element) => {
+    return element.alt;
   });
   const introduction = await profileHeader.$eval(".profile-description", (element) => {
     return element.textContent.trim();
@@ -56,17 +95,13 @@ const USERNAME = "mason_lisa";
     return Number(`${element.textContent}`.replaceAll(",", ""));
   });
 
-  console.log("username", username);
-  console.log("name", name);
-  console.log("profileImgSrc", profileImgSrc);
-  console.log("introduction", introduction);
-  console.log("numberOfPosts", numberOfPosts);
-  console.log("numberOfFollowers", numberOfFollowers);
-  console.log("numberOfFollowings", numberOfFollowings);
-
   // <post>
   const loadMoreButton = await page.$("button.pagination-failed-retry");
   const locations = {};
+  const posts = [];
+  const contents = {
+    posts,
+  };
   let retrievedPostsHandles = await page.$$("ul.box-photos li");
 
   while (retrievedPostsHandles.length < NUMBER_OF_POSTS_TO_RETRIEVE) {
@@ -93,19 +128,36 @@ const USERNAME = "mason_lisa";
     const datePosted = await postElementHandle.$eval(".post-footer .time", (element) => {
       return element.textContent.trim();
     });
+    let location = null;
     try {
-      const location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt a", (element) => {
+      location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt a", (element) => {
         return element.textContent;
       });
-      locations[i] = location;
     } catch (err) {
-      // console.log(`location doesn't exist for post ${i}`);
+      console.log(`location doesn't exist for post ${i}`);
+      location = null;
     }
-    console.log("description", description);
-    console.log("imgSrc", imgSrc);
-    console.log("numberOfLikes", numberOfLikes);
-    console.log("numberOfReplies", numberOfReplies);
-    console.log("datePosted", datePosted);
+    const post = {
+      location,
+      imgSrc,
+      description,
+      numberOfLikes,
+      numberOfReplies,
+      datePosted,
+    };
+    contents.posts.push(post);
   }
-  console.log("locations", locations);
+  const profile = {
+    username,
+    name,
+    profileImgSrc,
+    profileImgAlt,
+    introduction,
+    numberOfPosts,
+    numberOfFollowers,
+    numberOfFollowings,
+  };
+
+  const instagramUser = new InstagramUser(profile, contents);
+  console.log("instagramUser", instagramUser.contents.posts);
 })();

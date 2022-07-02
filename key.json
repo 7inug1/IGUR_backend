@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "focal-dock-355104",
+  "private_key_id": "7ceb8999be40d735168ccd4a853c4f1d4f77264e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDd4NkEYXITE8Jl\nb6k0gFF7AgGgC6VgXZDxftGjqnl8NK0lf8WLrNez6yj87VMnZot+js96mLlzsTB9\n/olItAyVTLgeZ8oYSGY94vIcgwgfAR15QnrqYkz1mF8ip8I84fJGLcr344CJcSfh\nuEoDC1KPRrG1giAFSQpmO60ISRyDQBj/qo6zl91oTaUSlCcn44JJ74ePRwMgNTYs\nRFfknek1jIGKiNHdK0bE6uk4UJf5XoCXx9oLhYDlLindeq1XCKZo9WBCivzZXoej\n4vAFnB5zEUjsJG9AxJdeaS0krFCqwS7GuMVRrWfGMS40k1ujw2Ai11fmG3x25bw+\nlyzTC+UPAgMBAAECggEAN9yIRuYRxmPPKaK3QxSbbxDOP/EurdhgyaxYM5CUDYVl\nom9M2SGnHREzvJozuVPEAxUJf6A78LjHsLEI91j9YglywZT3+K0hsKsWsb77qHKr\nbQAj2ibtoVe/fAYojROF381fsJGCpxfqJpYzbBjJrHDsBPrB/RKqn5qesdtWZmSg\n3vqdinsFwBZLQBdQjUtJH+1e0OvlUktaTaRK7KqTqcc5LmnqPaDdi3DU2g+I4t0v\nmF7+dU2oiDdQmTTBCxzHTPZBbJR5AokYF6GvUZlSW3xGvEw0zgr89PwTau5FaBa/\nJjfJoB7z7zHMU1yiM9/uYrR0byoFNAqGSwmaNGdKwQKBgQDy4gPl2/yFko0ff+iA\ne5jhHtJrcBR3lK3s0HZVcFGVgxvJaRadwQxVTz7S1yEpgr8f/+NVqgqTDNruNhbP\n5Fu5/boq3y80tB7qBpicKLJBLkYUUy9ZCqj7dUmGUWUHUAJ/cli+9raJG5QUcyRe\n8D3LVlscgymRsrtryvrcHAz0dwKBgQDp3G7ryeH26P15vpHS6awG9cPS+poHAvwT\nSdQ09O0u09if9rNLg4cX/pplRp4KMsIX1YpsW9Szyg22ZtN6Jy5391cJZ7xC6rFU\n/gPns9HJFiU4j3p//WM+E08PSemB+qwz4Ea03wU0doSYF86ZJe2vElJK2HMfHQpR\nHCs4unKyKQKBgAfh+/xm0mBHbFscXKBm4oRT6sJf5donsilgbqbBOXSfx7QWvAws\nqsjOBJz1LHdbbfaM6ITsOuGg5i4bBUyD/dIggP1JNw//1I0F38gZrgddiBq6xGug\nY/GdUeCRHbVKDHq0bFruSOhUQ88SGZkXNPo3eEeJnjzDTz/lW5TvOCBrAoGBAKrV\nLensZba6aD+A6IFL1TCYY15BVjb9BSsJ6Yxtxr1IX5wq2Lq27/6lLCADP/tvLL3A\nbgfN5UkYtn+iCaXX7WgRNHFYZ/vx+Wx+yld90ie0l6gDl5bbgJ2d+UjP01Xxyc1z\nbfM+X0z9rspzyaWyQTh8h8TI7P+zdQ/fJeugt5xRAoGASVw+1JIyC5sds6OU3kWg\nlJ93J3stPxlByDT6laVRU8Om8hgMsj4UNsxDKumSGQ6IeODqMioVANOB5Ni86nss\ni+dEBxFPVm/G9tPXii07Qelk04stRdEADt5e0Xmwi1UfgC3B9AQvxNAfenpq6zVo\nNAk8SdgJXQxN2spw0W2Leog=\n-----END PRIVATE KEY-----\n",
+  "client_email": "igur-45@focal-dock-355104.iam.gserviceaccount.com",
+  "client_id": "101921992601352769048",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/igur-45%40focal-dock-355104.iam.gserviceaccount.com"
+}
