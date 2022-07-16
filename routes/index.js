@@ -3,22 +3,13 @@
 const AWS = require("aws-sdk");
 const express = require("express");
 const router = express.Router();
-// const puppeteer = require("puppeteer");
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 const axios = require("axios");
-const ImageData = require("@canvas/image-data");
-const { createCanvas, Image } = require("canvas");
-const canvas = createCanvas(600, 600);
-const ctx = canvas.getContext("2d");
 const User = require("../models/User");
 const tf = require("@tensorflow/tfjs-node");
 const cocoSsd = require("@tensorflow-models/coco-ssd");
-const {Storage} = require('@google-cloud/storage');
-let serviceAccount = require("../google-cloud-config");
-serviceAccount = JSON.stringify(serviceAccount);
-const storage = new Storage({ credentials: JSON.parse(process.env.NL_KEY_JSON) });
 
 class Report {
   constructor(reportId, profile, contents) {
