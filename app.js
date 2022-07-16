@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const app = express();
 const index = require("./routes/index");
 const cors = require("cors");
-const PORT = 8000;
+const PORT = 8080;
 const db = require("./db");
 
 app.use(cors());
