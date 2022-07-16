@@ -3,7 +3,10 @@
 const AWS = require("aws-sdk");
 const express = require("express");
 const router = express.Router();
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 const axios = require("axios");
 const ImageData = require("@canvas/image-data");
 const { createCanvas, Image } = require("canvas");
@@ -12,7 +15,10 @@ const ctx = canvas.getContext("2d");
 const User = require("../models/User");
 const tf = require("@tensorflow/tfjs-node");
 const cocoSsd = require("@tensorflow-models/coco-ssd");
-const MOCK_DATA_NL = require("../mock_data_nl.json");
+const {Storage} = require('@google-cloud/storage');
+let serviceAccount = require("../google-cloud-config");
+serviceAccount = JSON.stringify(serviceAccount);
+const storage = new Storage({ credentials: JSON.parse(process.env.NL_KEY_JSON) });
 
 class Report {
   constructor(reportId, profile, contents) {
@@ -68,15 +74,16 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
 
         await page.setViewport({ width: 1920, height: 1080 });
         await page.goto(`https://www.picuki.com/profile/${enteredUsername}`, { waitUntil: "networkidle2" });
-
-        const profileHeader = await page.$(".wrapper .profile-header");
-        const username = (await profileHeader.$eval(".profile-info .profile-name-top", (element) => {
+        // await page.waitForSelector('.wrapper .profile-header', { visible: true });
+        // const profileHeader = await page.$(".wrapper .profile-header");
+        // console.log("profileHeader", profileHeader);
+        const username = (await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-name .profile-name-top", (element) => {
           return element.textContent;
         })).substring(1);
-        const name = await profileHeader.$eval(".profile-info .profile-name-bottom", (element) => {
+        const name = await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-name .profile-name-bottom", (element) => {
           return element.textContent;
         });
-        let profileImgSrc = await profileHeader.$eval(".profile-avatar .profile-avatar-image", (element) => {
+        let profileImgSrc = await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-avatar-image", (element) => {
           return element.src;
         });
         const imgBuffer = await fetchImageInBuffer(profileImgSrc);
@@ -93,10 +100,10 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
           console.log("s3 err: ", err);
         }
 
-        const profileImgAlt = await profileHeader.$eval(".profile-avatar .profile-avatar-image", (element) => {
+        const profileImgAlt = await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-avatar-image", (element) => {
           return element.alt;
         });
-        const introduction = await profileHeader.$eval(".profile-description", (element) => {
+        const introduction = await page.$eval("div.wrapper div.profile-header div.content.clearfix div.profile-description", (element) => {
           return element.textContent.trim();
         });
         const numberOfPosts = await page.$eval("div.wrapper div.content .total_posts", (element) => {
@@ -262,9 +269,8 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
 
     async function processNaturalLanguage() {
       const language = require("@google-cloud/language");
-      
       const client = new language.LanguageServiceClient({
-        keyFilename: "key.json",
+        credentials: JSON.parse(process.env.NL_KEY_JSON)
       });
       
       let sentimentsResult = null;
@@ -398,15 +404,12 @@ router.post("/users/:username", function (req, res, next) {
     };
     
     const dbUser = await checkUserInDB();
-    console.log("dbUserr", dbUser);
 
     if (!dbUser) {
       console.log("crawl ig");
       
       crawlInstagram();
     } else if(dbUser.username === username) {
-      console.log("dbUser", dbUser);
-      console.log("found from db");
       res.status(200).send({
         "user": dbUser
       });
@@ -419,14 +422,16 @@ router.post("/users/:username", function (req, res, next) {
           accessKeyId: process.env.AWS_ACCESS_KEY_ID,
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
+
         const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
         
         await page.setViewport({ width: 1920, height: 1080 });
         await page.goto(`https://www.picuki.com/profile/${req.params.username}`, { waitUntil: "networkidle2" });
         // try {
-        const profileHeader = await page.$(".wrapper .profile-header");
-        console.log("profileHeader", profileHeader);
+        // await page.waitForSelector('.wrapper .profile-header', { visible: true });
+        // const profileHeader = await page.$(".wrapper .profile-header");
+        // console.log("profileHeader", profileHeader);
         
         // } catch (err) {
         //   res.sendStatus(214);
@@ -445,7 +450,6 @@ router.post("/users/:username", function (req, res, next) {
         if (privateNotif === "Profile is private.") {
           res.sendStatus(214);
         } else {
-
           const username = (await profileHeader.$eval(".profile-info .profile-name-top", (element) => {
             return element.textContent;
           })).substring(1);
@@ -636,9 +640,8 @@ router.post("/users/:username", function (req, res, next) {
 
     async function processNaturalLanguage() {
       const language = require("@google-cloud/language");
-      
       const client = new language.LanguageServiceClient({
-        keyFilename: "key.json",
+        credentials: JSON.parse(process.env.NL_KEY_JSON)
       });
 
       let sentimentsResult = null;
