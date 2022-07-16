@@ -2,3 +2,9 @@
 .env
 .eslintrc.json
 .prettierrc
+*.json
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
