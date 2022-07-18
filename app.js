@@ -9,24 +9,16 @@ const cors = require("cors");
 const PORT = 8080;
 
 connectDB();
-// const corsOptions = {
-//   origin: ['https://igur.vercel.app/', 'https://igur-frontend-7inug1.vercel.app/', 'https://igur-frontend-git-master-7inug1.vercel.app/'],
-//   credentials: true,
-//   optionsSuccessStatus: 200
-// };
-app.use(cors({
-  "origin": "https://igur.vercel.app",
-  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-  "credentials": true,
-}));
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://igur.vercel.app");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+
+app.use(cors());
+// app.use((req, res, next) => {
+//   res.setHeader("Access-Control-Allow-Origin", "https://igur.vercel.app");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
 // app.use(function (req, res, next) {
 //   // const allowedOrigins = "https://igur.vercel.app";
 //   // const origin = req.headers.origin;
