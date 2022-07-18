@@ -8,7 +8,9 @@ const index = require("./routes/index");
 const cors = require("cors");
 const PORT = 8080;
 
-app.use(cors());
+app.use(cors(
+  { origin: '*' }
+));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
