@@ -11,7 +11,7 @@ const PORT = 8080;
 connectDB();
 
 app.use(cors({
-  origin: "https://igur.vercel.app",
+  origin: "https://62d555de3aae8241c8e7e0e0--dreamy-bombolone-1d7e0e.netlify.app/",
   methods: ['GET', 'POST'],
 }));
 // app.use((req, res, next) => {
