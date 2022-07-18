@@ -11,7 +11,7 @@ const PORT = 8080;
 connectDB();
 
 app.use(cors({
-  origin: "https://igur.vercel.app:80",
+  origin: "https://igur.vercel.app",
   methods: ['GET', 'POST'],
 }));
 // app.use((req, res, next) => {
