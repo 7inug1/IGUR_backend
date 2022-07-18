@@ -25,13 +25,16 @@ app.use(function (req, res, next) {
   // Website you wish to allow to connect
   // res.setHeader('Access-Control-Allow-Origin', 'https://igur-frontend-7inug1.vercel.app/');
   // if (allowedOrigins.includes(origin)) {
-  res.setHeader('Access-Control-Allow-Origin', "https://igur.vercel.app");
+  // res.setHeader('Access-Control-Allow-Origin', "https://igur.vercel.app");
+
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+
   // }
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
   // Request headers you wish to allow
-  res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+  res.setHeader("Access-Control-Allow-Headers", "*");
 
   // Pass to next layer of middleware
   next();
