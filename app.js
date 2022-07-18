@@ -18,9 +18,6 @@ app.use(cors({
   "origin": "*",
   "credentials": true,
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-// Add headers before the routes are defined
 app.use(function (req, res, next) {
   // const allowedOrigins = "https://igur.vercel.app";
   // const origin = req.headers.origin;
@@ -42,6 +39,9 @@ app.use(function (req, res, next) {
   // Pass to next layer of middleware
   next();
 });
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// Add headers before the routes are defined
 
 app.listen(PORT, () => {
   console.log("listening on port " + PORT);
