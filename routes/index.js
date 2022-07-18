@@ -352,6 +352,7 @@ router.get("/users", function (req, res, next) {
     const dbUsers = await checkUserInDB();
   
     if (dbUsers) {
+      res.header("Access-Control-Allow-Origin", "*");
       res.send({
         dbUsers
       });
