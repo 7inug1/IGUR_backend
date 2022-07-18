@@ -38,7 +38,7 @@ router.get("/users/:username/reports", function (req, res, next) {
   
     const dbUser = await checkUserInDB();
 
-    res.send(dbUser);
+    res.json(dbUser);
   }
 });
 
@@ -341,7 +341,7 @@ router.get("/users/:username/reports/:reportId", function (req, res, next) {
   
     const dbUser = await checkUserInDB();
 
-    res.send(dbUser);
+    res.json(dbUser);
   }
 });
 
@@ -352,7 +352,7 @@ router.get("/users", function (req, res, next) {
     const dbUsers = await checkUserInDB();
   
     if (dbUsers) {
-      res.send({
+      res.json({
         dbUsers
       });
     }
@@ -381,7 +381,6 @@ router.post("/users/:username", function (req, res, next) {
     const username = req.params.username;
     let report = null;
 
-    // res.send(MOCK_DATA_NL);
     async function checkUserInDB() {
       let dbUser = null;
 
