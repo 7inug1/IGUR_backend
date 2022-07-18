@@ -12,8 +12,9 @@ connectDB();
 
 app.use(cors({
   origin: "https://igur.vercel.app",
-  credential: 'true',
+  credentials: true,
   methods: ['GET', 'POST'],
+  
 }));
 // app.use((req, res, next) => {
 //   res.setHeader("Access-Control-Allow-Origin", "https://igur.vercel.app");
