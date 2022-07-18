@@ -38,7 +38,6 @@ router.get("/users/:username/reports", function (req, res, next) {
   
     const dbUser = await checkUserInDB();
 
-    res.header("Access-Control-Allow-Origin", req.headers.origin);
     res.send(dbUser);
   }
 });
@@ -221,8 +220,6 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
         } catch (err) {
           console.log("save err:", err);
         }
-
-        res.header("Access-Control-Allow-Origin", req.headers.origin);
         res.status(206).json({
           "report": newReport
         });
@@ -344,7 +341,6 @@ router.get("/users/:username/reports/:reportId", function (req, res, next) {
   
     const dbUser = await checkUserInDB();
 
-    res.header("Access-Control-Allow-Origin", req.headers.origin);
     res.send(dbUser);
   }
 });
@@ -356,7 +352,6 @@ router.get("/users", function (req, res, next) {
     const dbUsers = await checkUserInDB();
   
     if (dbUsers) {
-      res.header("Access-Control-Allow-Origin", req.headers.origin);
       res.send({
         dbUsers
       });
@@ -386,6 +381,7 @@ router.post("/users/:username", function (req, res, next) {
     const username = req.params.username;
     let report = null;
 
+    // res.send(MOCK_DATA_NL);
     async function checkUserInDB() {
       let dbUser = null;
 
@@ -404,8 +400,7 @@ router.post("/users/:username", function (req, res, next) {
       console.log("crawl ig");
       
       crawlInstagram();
-    } else if (dbUser.username === username) {
-      res.header("Access-Control-Allow-Origin", req.headers.origin);
+    } else if(dbUser.username === username) {
       res.status(200).send({
         "user": dbUser
       });
@@ -444,7 +439,6 @@ router.post("/users/:username", function (req, res, next) {
         console.log("privateNotif", privateNotif==="Profile is private.");
         
         if (privateNotif === "Profile is private.") {
-          res.header("Access-Control-Allow-Origin", req.headers.origin);
           res.sendStatus(214);
         } else {
           const username = (await profileHeader.$eval(".profile-info .profile-name-top", (element) => {
@@ -598,7 +592,6 @@ router.post("/users/:username", function (req, res, next) {
 
           await user.save();
 
-          res.header("Access-Control-Allow-Origin", req.headers.origin);
           res.sendStatus(204);
         }
       })();
