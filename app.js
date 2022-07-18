@@ -14,31 +14,34 @@ connectDB();
 //   credentials: true,
 //   optionsSuccessStatus: 200
 // };
-app.use(cors());
+app.use(cors({
+  "origin": "*",
+  "credentials": true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Add headers before the routes are defined
-app.use(function (req, res, next) {
-  // const allowedOrigins = "https://igur.vercel.app";
-  // const origin = req.headers.origin;
-  // console.log("origin", origin);
-  // Website you wish to allow to connect
-  // res.setHeader('Access-Control-Allow-Origin', 'https://igur-frontend-7inug1.vercel.app/');
-  // if (allowedOrigins.includes(origin)) {
-  // res.setHeader('Access-Control-Allow-Origin', "https://igur.vercel.app");
+// app.use(function (req, res, next) {
+//   // const allowedOrigins = "https://igur.vercel.app";
+//   // const origin = req.headers.origin;
+//   // console.log("origin", origin);
+//   // Website you wish to allow to connect
+//   // res.setHeader('Access-Control-Allow-Origin', 'https://igur-frontend-7inug1.vercel.app/');
+//   // if (allowedOrigins.includes(origin)) {
+//   // res.setHeader('Access-Control-Allow-Origin', "https://igur.vercel.app");
 
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+//   res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
 
-  // }
-  // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+//   // }
+//   // Request methods you wish to allow
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
-  // Request headers you wish to allow
-  res.setHeader("Access-Control-Allow-Headers", "*");
+//   // Request headers you wish to allow
+//   res.setHeader("Access-Control-Allow-Headers", "*");
 
-  // Pass to next layer of middleware
-  next();
-});
+//   // Pass to next layer of middleware
+//   next();
+// });
 
 app.listen(PORT, () => {
   console.log("listening on port " + PORT);
