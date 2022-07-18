@@ -15,7 +15,8 @@ connectDB();
 //   optionsSuccessStatus: 200
 // };
 app.use(cors({
-  "origin": "*",
+  "origin": "https://igur.vercel.app",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
   "credentials": true,
 }));
 app.use((req, res, next) => {
