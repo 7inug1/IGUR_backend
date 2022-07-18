@@ -9,7 +9,7 @@ const cors = require("cors");
 const PORT = 8080;
 
 const corsOptions = {
-  origin: 'https://igur-frontend-7inug1.vercel.app',
+  origin: '*',
   credentials: true,
   optionsSuccessStatus: 200
 };
