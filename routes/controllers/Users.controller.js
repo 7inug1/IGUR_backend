@@ -19,10 +19,8 @@ exports.getUsers = function (req, res, next) {
   }
 
   async function checkUsersInDB() {
-    let dbUsers = null;
-
     try {
-      dbUsers = await User.find();
+      const dbUsers = await User.find();
 
       return dbUsers;
     } catch (err) {
@@ -79,17 +77,32 @@ exports.getUser = function (req, res, next) {
         await page.goto(`https://www.picuki.com/profile/${req.params.username}`, { waitUntil: "networkidle2" });
 
         let privateNotif = null;
+        let nullNotif = null;
 
         try {
           privateNotif = await page.$eval(".wrapper .profile-header .content.clearfix .private-profile-top", (element) => {
             return element.textContent.trim();
           });
         } catch (err) {
-          console.log("Private account dom doesn't exist.");
+          console.log("crawling search error");
+        }
+
+        try {
+          nullNotif = await page.$eval(".wrapper .content .content-page .error-p span", (element) => {
+            return element.textContent.trim();
+          });
+        } catch (err) {
+          console.log("crawling search error");
         }
 
         if (privateNotif === "Profile is private.") {
-          res.sendStatus(214);
+          res.json({
+            notificationCode: "privateAccount"
+          });
+        } else if (nullNotif === "Nothing found!") {
+          res.json({
+            notificationCode: "noAccount"
+          });
         } else {
           const username = (await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-name .profile-name-top", (element) => {
             return element.textContent;
@@ -647,23 +660,23 @@ exports.getReport = function (req, res, next) {
   runAsyncRunnerFunction();
 
   async function runAsyncRunnerFunction() {
-    async function checkUserInDB() {
-      let dbUser = null;
-      const username = req.params.username;
-      const reportId = req.params.reportId;
-      try {
-        dbUser = await User.findOne({ username, "reports.id": reportId }, {"reports.$": 1});
-      } catch (err) {
-        return next(err);
-      }
-
-      return dbUser;
-    };
-
     const dbUser = await checkUserInDB();
 
     res.json(dbUser);
   }
+
+  async function checkUserInDB() {
+    const username = req.params.username;
+    const reportId = req.params.reportId;
+
+    try {
+      const dbUser = await User.findOne({ username, "reports.id": reportId }, {"reports.$": 1});
+
+      return dbUser;
+    } catch (err) {
+      return next(err);
+    }
+  };
 };
 
 exports.redirectUnavailablePages = function (req, res, next) {
