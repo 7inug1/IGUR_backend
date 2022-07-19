@@ -9,36 +9,36 @@ const tf = require("@tensorflow/tfjs-node");
 const cocoSsd = require("@tensorflow-models/coco-ssd");
 const User = require("../../models/User");
 
-router.getUsers = function (req, res, next) {
-  runMainCode();
+exports.getUsers = function (req, res, next) {
+  runAsyncRunnerFunction();
 
-  async function runMainCode() {
-    const dbUsers = await checkUserInDB();
+  async function runAsyncRunnerFunction() {
+    try {
+      const dbUsers = await checkUsersInDB();
 
-    if (dbUsers) {
-      res.json({
-        dbUsers
-      });
+      res.status(200).json({ dbUsers });
+    } catch (err) {
+      next(err);
     }
   }
 
-  async function checkUserInDB() {
+  async function checkUsersInDB() {
     let dbUsers = null;
 
     try {
       dbUsers = await User.find();
-    } catch (err) {
-      return next(err);
-    }
 
-    return dbUsers;
+      return dbUsers;
+    } catch (err) {
+      next(err);
+    }
   };
 };
 
-router.getUser = function (req, res, next) {
-  runMainCode();
+exports.getUser = function (req, res, next) {
+  runAsyncRunnerFunction();
 
-  async function runMainCode() {
+  async function runAsyncRunnerFunction() {
     const numberOfCrawls = req.body.numberOfCrawls;
     const reportId = req.body.reportId;
     const username = req.params.username;
@@ -347,10 +347,10 @@ router.getUser = function (req, res, next) {
   }
 };
 
-router.createReport = function (req, res, next) {
-  runMainCode();
+exports.createReport = function (req, res, next) {
+  runAsyncRunnerFunction();
 
-  async function runMainCode() {
+  async function runAsyncRunnerFunction() {
     const numberOfCrawls = req.body.numberOfCrawls;
     const reportId = req.params.reportId;
     const username = req.params.username;
@@ -625,10 +625,10 @@ router.createReport = function (req, res, next) {
   }
 };
 
-router.getReports = function (req, res, next) {
-  runMainCode();
+exports.getReports = function (req, res, next) {
+  runAsyncRunnerFunction();
 
-  async function runMainCode() {
+  async function runAsyncRunnerFunction() {
     async function checkUserInDB() {
       const username = req.params.username;
       let dbUser = null;
@@ -648,10 +648,10 @@ router.getReports = function (req, res, next) {
   }
 };
 
-router.getReport = function (req, res, next) {
-  runMainCode();
+exports.getReport = function (req, res, next) {
+  runAsyncRunnerFunction();
 
-  async function runMainCode() {
+  async function runAsyncRunnerFunction() {
     async function checkUserInDB() {
       let dbUser = null;
       const username = req.params.username;
@@ -670,5 +670,3 @@ router.getReport = function (req, res, next) {
     res.json(dbUser);
   }
 };
-
-module.exports = router;
