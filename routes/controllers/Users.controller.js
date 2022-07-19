@@ -13,13 +13,9 @@ exports.getUsers = function (req, res, next) {
   runAsyncRunnerFunction();
 
   async function runAsyncRunnerFunction() {
-    try {
-      const dbUsers = await checkUsersInDB();
+    const dbUsers = await checkUsersInDB();
 
-      res.status(200).json({ dbUsers });
-    } catch (err) {
-      next(err);
-    }
+    res.status(200).json({ dbUsers });
   }
 
   async function checkUsersInDB() {
@@ -629,23 +625,22 @@ exports.getReports = function (req, res, next) {
   runAsyncRunnerFunction();
 
   async function runAsyncRunnerFunction() {
-    async function checkUserInDB() {
-      const username = req.params.username;
-      let dbUser = null;
-
-      try {
-        dbUser = await User.findOne({ username });
-      } catch (err) {
-        return next(err);
-      }
-
-      return dbUser;
-    };
-
     const dbUser = await checkUserInDB();
 
     res.json(dbUser);
   }
+
+  async function checkUserInDB() {
+    const username = req.params.username;
+
+    try {
+      const dbUser = await User.findOne({ username });
+
+      return dbUser;
+    } catch (err) {
+      return next(err);
+    }
+  };
 };
 
 exports.getReport = function (req, res, next) {
@@ -670,3 +665,10 @@ exports.getReport = function (req, res, next) {
     res.json(dbUser);
   }
 };
+
+exports.redirectUnavailablePages = function (req, res, next) {
+  const err = new Error("Page Not Found");
+
+  err.status = 404;
+  next(err);
+}
