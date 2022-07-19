@@ -1,15 +1,16 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-const AWS = require("aws-sdk");
 const express = require("express");
 const router = express.Router();
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
+const AWS = require("aws-sdk");
 const axios = require("axios");
-const User = require("../models/User");
 const tf = require("@tensorflow/tfjs-node");
 const cocoSsd = require("@tensorflow-models/coco-ssd");
+const User = require("../models/User");
+
+puppeteer.use(StealthPlugin());
 
 class Report {
   constructor(reportId, profile, contents) {
@@ -21,7 +22,7 @@ class Report {
 
 router.get("/users/:username/reports", function (req, res, next) {
   runMainCode();
-  
+
   async function runMainCode() {
     async function checkUserInDB() {
       const username = req.params.username;
@@ -32,10 +33,10 @@ router.get("/users/:username/reports", function (req, res, next) {
       } catch (err) {
         return next(err);
       }
-    
+
       return dbUser;
     };
-  
+
     const dbUser = await checkUserInDB();
 
     res.json(dbUser);
@@ -44,12 +45,12 @@ router.get("/users/:username/reports", function (req, res, next) {
 
 router.post("/users/:username/reports/:reportId", function (req, res, next) {
   runMainCode();
-  
+
   async function runMainCode() {
     const numberOfCrawls = req.body.numberOfCrawls;
     const reportId = req.params.reportId;
     const username = req.params.username;
-    
+
     let report = null;
     crawlInstagram(username);
 
@@ -65,9 +66,7 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
 
         await page.setViewport({ width: 1920, height: 1080 });
         await page.goto(`https://www.picuki.com/profile/${enteredUsername}`, { waitUntil: "networkidle2" });
-        // await page.waitForSelector('.wrapper .profile-header', { visible: true });
-        // const profileHeader = await page.$(".wrapper .profile-header");
-        // console.log("profileHeader", profileHeader);
+
         const username = (await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-name .profile-name-top", (element) => {
           return element.textContent;
         })).substring(1);
@@ -191,7 +190,7 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
 
         report = new Report(reportId, profile, contents);
         console.log("report", report);
-        
+
         await processNaturalLanguage();
 
         const newReport = {
@@ -263,7 +262,7 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
       const client = new language.LanguageServiceClient({
         credentials: JSON.parse(process.env.NL_KEY_JSON)
       });
-      
+
       let sentimentsResult = null;
       let entitiesResult = null;
       let categoriesResult = null;
@@ -324,7 +323,7 @@ router.post("/users/:username/reports/:reportId", function (req, res, next) {
 
 router.get("/users/:username/reports/:reportId", function (req, res, next) {
   runMainCode();
-  
+
   async function runMainCode() {
     async function checkUserInDB() {
       let dbUser = null;
@@ -335,10 +334,10 @@ router.get("/users/:username/reports/:reportId", function (req, res, next) {
       } catch (err) {
         return next(err);
       }
-    
+
       return dbUser;
     };
-  
+
     const dbUser = await checkUserInDB();
 
     res.json(dbUser);
@@ -347,10 +346,10 @@ router.get("/users/:username/reports/:reportId", function (req, res, next) {
 
 router.get("/users", function (req, res, next) {
   runMainCode();
-  
+
   async function runMainCode() { 
     const dbUsers = await checkUserInDB();
-  
+
     if (dbUsers) {
       res.json({
         dbUsers
@@ -366,10 +365,10 @@ router.get("/users", function (req, res, next) {
     } catch (err) {
       return next(err);
     }
-    
+
     return dbUsers;
   };
-  
+
 });
 
 router.post("/users/:username", function (req, res, next) {
@@ -392,12 +391,12 @@ router.post("/users/:username", function (req, res, next) {
 
       return dbUser;
     };
-    
+
     const dbUser = await checkUserInDB();
 
     if (!dbUser) {
       console.log("crawl ig");
-      
+
       crawlInstagram();
     } else if(dbUser.username === username) {
       res.status(200).send({
@@ -415,38 +414,30 @@ router.post("/users/:username", function (req, res, next) {
 
         const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
-        
+
         await page.setViewport({ width: 1920, height: 1080 });
         await page.goto(`https://www.picuki.com/profile/${req.params.username}`, { waitUntil: "networkidle2" });
-        // try {
-        // await page.waitForSelector('.wrapper .profile-header', { visible: true });
-        // const profileHeader = await page.$(".wrapper .profile-header");
-        // console.log("profileHeader", profileHeader);
-        
-        // } catch (err) {
-        //   res.sendStatus(214);
-        // }
+
         let privateNotif = null;
+
         try {
-          privateNotif = await profileHeader.$eval(".private-profile-top", (element) => {
+          privateNotif = await page.$eval(".wrapper .profile-header .content.clearfix .private-profile-top", (element) => {
             return element.textContent.trim();
           });
         } catch (err) {
           console.log("Private account dom doesn't exist.");
-          
         }
-        console.log("privateNotif", privateNotif==="Profile is private.");
-        
+
         if (privateNotif === "Profile is private.") {
           res.sendStatus(214);
         } else {
-          const username = (await profileHeader.$eval(".profile-info .profile-name-top", (element) => {
+          const username = (await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-name .profile-name-top", (element) => {
             return element.textContent;
           })).substring(1);
-          const name = await profileHeader.$eval(".profile-info .profile-name-bottom", (element) => {
+          const name = await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-name .profile-name-bottom", (element) => {
             return element.textContent;
           });
-          let profileImgSrc = await profileHeader.$eval(".profile-avatar .profile-avatar-image", (element) => {
+          let profileImgSrc = await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-avatar-image", (element) => {
             return element.src;
           });
           const imgBuffer = await fetchImageInBuffer(profileImgSrc);
@@ -463,10 +454,10 @@ router.post("/users/:username", function (req, res, next) {
             console.log("s3 err: ", err);
           }
 
-          const profileImgAlt = await profileHeader.$eval(".profile-avatar .profile-avatar-image", (element) => {
+          const profileImgAlt = await page.$eval(".wrapper .profile-header .content.clearfix .profile-info .profile-avatar-image", (element) => {
             return element.alt;
           });
-          const introduction = await profileHeader.$eval(".profile-description", (element) => {
+          const introduction = await page.$eval("div.wrapper div.profile-header div.content.clearfix div.profile-description", (element) => {
             return element.textContent.trim();
           });
           const numberOfPosts = await page.$eval("div.wrapper div.content .total_posts", (element) => {
