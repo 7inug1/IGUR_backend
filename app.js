@@ -2,23 +2,36 @@
 require("dotenv").config({ path: __dirname + '/.env' });
 const connectDB = require("./db");
 const express = require("express");
-// const cors = require("cors");
+const cors = require("cors");
 const app = express();
+app.use(
+  cors({
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true,
+  })
+);
+app.options(
+  '*',
+  cors({
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true,
+  })
+);
 
-//acts as a middleware
-//to handle CORS Errors
-app.use((req, res, next) => { //doesn't send response just adjusts it
-    res.header("Access-Control-Allow-Origin", "*") //* to give access to any origin
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization" //to give access to all the headers provided
-    );
-    if(req.method === 'OPTIONS'){
-        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET'); //to give access to all the methods provided
-        return res.status(200).json({});
-    }
-    next(); //so that other routes can take over
-})
+// app.use((req, res, next) => { //doesn't send response just adjusts it
+//     res.header("Access-Control-Allow-Origin", "*") //* to give access to any origin
+//     res.header(
+//         "Access-Control-Allow-Headers",
+//         "Origin, X-Requested-With, Content-Type, Accept, Authorization" //to give access to all the headers provided
+//     );
+//     if(req.method === 'OPTIONS'){
+//         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET'); //to give access to all the methods provided
+//         return res.status(200).json({});
+//     }
+//     next(); //so that other routes can take over
+// })
 const mongoose = require("mongoose");
 const index = require("./routes/index");
 const PORT = 8080;
@@ -31,6 +44,7 @@ connectDB();
 //   methods: ['GET', 'POST', 'PATCH'],
 // }));
 // app.use(cors({credentials: true, origin: true}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
