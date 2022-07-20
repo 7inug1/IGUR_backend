@@ -667,13 +667,6 @@ exports.getReport = function (req, res, next) {
   };
 };
 
-exports.redirectUnavailablePages = function (req, res, next) {
-  const err = new Error("Page Not Found");
-
-  err.status = 404;
-  next(err);
-}
-
 async function checkUserInDB(req) {
   const username = req.params.username;
 

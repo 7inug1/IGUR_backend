@@ -23,6 +23,4 @@ router.get("/users", UsersController.getUsers); // Leaderboard
 
 router.post("/users/:username", UsersController.getUser);
 
-router.get('/*', UsersController.redirectUnavailablePages);
-
 module.exports = router;
