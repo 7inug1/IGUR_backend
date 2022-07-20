@@ -71,6 +71,7 @@ exports.getUser = function (req, res, next) {
         const browser = await puppeteer.launch({
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          executablePath: __dirname + '/node_modules/puppeteer/.local-chromium/mac-1011831/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
         });
         const page = await browser.newPage();
 
