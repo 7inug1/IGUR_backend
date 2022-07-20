@@ -2,7 +2,7 @@
 require("dotenv").config({ path: __dirname + '/.env' });
 const connectDB = require("./db");
 const express = require("express");
-const cors = require("cors");
+// const cors = require("cors");
 const app = express();
 const mongoose = require("mongoose");
 const index = require("./routes/index");
@@ -15,7 +15,7 @@ connectDB();
 //   origin: "https://igur.vercel.app",
 //   methods: ['GET', 'POST', 'PATCH'],
 // }));
-app.use(cors({credentials: true, origin: true}));
+// app.use(cors({credentials: true, origin: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,6 +37,33 @@ app.use(express.urlencoded({ extended: true }));
 //   // Pass to next layer of middleware
 //   next();
 // });
+
+app.use(function(req, res, next) {
+  var oneof = false;
+  if(req.headers.origin) {
+      res.header('Access-Control-Allow-Origin', req.headers.origin);
+      oneof = true;
+  }
+  if(req.headers['access-control-request-method']) {
+      res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
+      oneof = true;
+  }
+  if(req.headers['access-control-request-headers']) {
+      res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
+      oneof = true;
+  }
+  if(oneof) {
+      res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
+  }
+
+  // intercept OPTIONS method
+  if (oneof && req.method == 'OPTIONS') {
+      res.send(200);
+  }
+  else {
+      next();
+  }
+});
 
 app.listen(PORT, () => {
   console.log("listening on port " + PORT);
