@@ -363,7 +363,7 @@ exports.createReport = function (req, res, next) {
     const numberOfCrawls = req.body.numberOfCrawls;
     const reportId = req.params.reportId;
     const username = req.params.username;
-
+    res.set('Access-Control-Allow-Origin', 'https://igur.vercel.app');
     let report = null;
     crawlInstagram(username);
 
