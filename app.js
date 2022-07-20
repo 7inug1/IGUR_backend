@@ -9,13 +9,13 @@ const index = require("./routes/index");
 const PORT = 8080;
 
 connectDB();
-process.env.MODE === "development"
-  ? app.use(cors())
-  : app.use(cors({
-  origin: "https://igur.vercel.app",
-  methods: ['GET', 'POST', 'PATCH'],
-}));
-
+// process.env.MODE === "development"
+//   ? app.use(cors())
+//   : app.use(cors({
+//   origin: "https://igur.vercel.app",
+//   methods: ['GET', 'POST', 'PATCH'],
+// }));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
