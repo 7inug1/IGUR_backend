@@ -15,7 +15,7 @@ puppeteer.use(StealthPlugin());
 
 router.get("/users/:username/reports", UsersController.getReports);
 
-router.post("/users/:username/reports/:reportId", cors(), UsersController.createReport);
+router.post("/users/:username/reports/:reportId", UsersController.createReport);
 
 router.get("/users/:username/reports/:reportId", UsersController.getReport);
 
