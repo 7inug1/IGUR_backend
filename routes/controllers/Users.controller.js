@@ -37,7 +37,9 @@ exports.getUser = function (req, res, next) {
     const reportId = req.body.reportId;
     const username = req.params.username;
     let report = null;
-
+    res.header('Access-Control-Allow-Origin', '*'); 
+    res.header('Access-Control-Allow-Methods', 'GET, POST');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     // async function checkUserInDB() {
     //   try {
     //     const dbUser = await User.findOne({ username });
