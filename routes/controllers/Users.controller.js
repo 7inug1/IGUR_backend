@@ -38,19 +38,17 @@ exports.getUser = function (req, res, next) {
     const username = req.params.username;
     let report = null;
 
-    async function checkUserInDB() {
-      let dbUser = null;
+    // async function checkUserInDB() {
+    //   try {
+    //     const dbUser = await User.findOne({ username });
 
-      try {
-        dbUser = await User.findOne({ username });
-      } catch (err) {
-        return next(err);
-      }
+    //     return dbUser;
+    //   } catch (err) {
+    //     return next(err);
+    //   }
+    // };
 
-      return dbUser;
-    };
-
-    const dbUser = await checkUserInDB();
+    const dbUser = await checkUserInDB(req);
 
     if (!dbUser) {
       console.log("crawl ig");
@@ -70,7 +68,10 @@ exports.getUser = function (req, res, next) {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
 
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
         const page = await browser.newPage();
 
         await page.setViewport({ width: 1920, height: 1080 });
@@ -84,7 +85,7 @@ exports.getUser = function (req, res, next) {
             return element.textContent.trim();
           });
         } catch (err) {
-          console.log("crawling search error");
+          console.log("Checking private instagram account");
         }
 
         try {
@@ -92,7 +93,7 @@ exports.getUser = function (req, res, next) {
             return element.textContent.trim();
           });
         } catch (err) {
-          console.log("crawling search error");
+          console.log("Checking whether account is non-existent.");
         }
 
         if (privateNotif === "Profile is private.") {
@@ -264,14 +265,14 @@ exports.getUser = function (req, res, next) {
       let location = null;
 
       try {
-        location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt a", (element) => {
+        location = await post.$eval(".wrapper .content.box-photos-wrapper .box-photos.profile-box-photos.clearfix  div.box-photo .photo-info .photo-location .icon-globe-alt a", (element) => {
           return element.textContent;
         });
-
         contents.locations[id] = location;
       } catch (err) {
         location = null;
       }
+      console.log("location", location);
 
       return location;
     }
@@ -284,7 +285,6 @@ exports.getUser = function (req, res, next) {
 
     async function getPredictions(imgBuffer) {
       const Uint32Array = new Uint8Array(imgBuffer);
-
       const imgTensor = tf.node.decodeImage(Uint32Array);
       const model = await cocoSsd.load();
       const predictions = await model.detect(imgTensor);
@@ -374,7 +374,10 @@ exports.createReport = function (req, res, next) {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
 
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
         const page = await browser.newPage();
 
         await page.setViewport({ width: 1920, height: 1080 });
@@ -501,29 +504,26 @@ exports.createReport = function (req, res, next) {
           numberOfFollowings,
         };
 
-        report = new Report(reportId, profile, contents);
-        console.log("report", report);
-
         await processNaturalLanguage();
 
         const newReport = {
           id: reportId,
           profile: {
-            username: report.profile.username,
-            name: report.profile.name,
-            profileImgSrc: report.profile.profileImgSrc,
-            profileImgAlt: report.profile.profileImgAlt,
-            introduction: report.profile.introduction,
-            numberOfPosts: report.profile.numberOfPosts,
-            numberOfFollowers: report.profile.numberOfFollowers,
-            numberOfFollowings: report.profile.numberOfFollowings,
+            username: profile.username,
+            name: profile.name,
+            profileImgSrc: profile.profileImgSrc,
+            profileImgAlt: profile.profileImgAlt,
+            introduction: profile.introduction,
+            numberOfPosts: profile.numberOfPosts,
+            numberOfFollowers: profile.numberOfFollowers,
+            numberOfFollowings: profile.numberOfFollowings,
           },
           contents: {
-            posts: report.contents.posts,
-            locations: report.contents.locations,
+            posts: contents.posts,
+            locations: contents.locations,
           }
         };
-        console.log("newReport", newReport);
+
         try {
           await User.findOneAndUpdate(
             { username: username },
@@ -532,7 +532,7 @@ exports.createReport = function (req, res, next) {
         } catch (err) {
           console.log("save err:", err);
         }
-        res.status(206).json({
+        res.status(201).json({
           "report": newReport
         });
       })();
@@ -542,7 +542,7 @@ exports.createReport = function (req, res, next) {
       let location = null;
 
       try {
-        location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt a", (element) => {
+        location = await post.$eval(".wrapper .content.box-photos-wrapper .box-photos.profile-box-photos.clearfix  div.box-photo .photo-info .photo-location .icon-globe-alt a", (element) => {
           return element.textContent;
         });
 
@@ -550,6 +550,7 @@ exports.createReport = function (req, res, next) {
       } catch (err) {
         location = null;
       }
+      console.log("location", location);
 
       return location;
     }
@@ -638,34 +639,22 @@ exports.getReports = function (req, res, next) {
   runAsyncRunnerFunction();
 
   async function runAsyncRunnerFunction() {
-    const dbUser = await checkUserInDB();
+    const dbUser = await checkUserInDB(req);
 
     res.json(dbUser);
   }
-
-  async function checkUserInDB() {
-    const username = req.params.username;
-
-    try {
-      const dbUser = await User.findOne({ username });
-
-      return dbUser;
-    } catch (err) {
-      return next(err);
-    }
-  };
 };
 
 exports.getReport = function (req, res, next) {
   runAsyncRunnerFunction();
 
   async function runAsyncRunnerFunction() {
-    const dbUser = await checkUserInDB();
+    const dbUser = await getUserWithSpecificReport();
 
     res.json(dbUser);
   }
 
-  async function checkUserInDB() {
+  async function getUserWithSpecificReport() {
     const username = req.params.username;
     const reportId = req.params.reportId;
 
@@ -684,4 +673,48 @@ exports.redirectUnavailablePages = function (req, res, next) {
 
   err.status = 404;
   next(err);
+}
+
+async function checkUserInDB(req) {
+  const username = req.params.username;
+
+  try {
+    const dbUser = await User.findOne({ username });
+
+    return dbUser;
+  } catch (err) {
+    return next(err);
+  }
+};
+
+async function fetchImageInBuffer(url) {
+  const res = await axios({ method: "get", url, responseType: "arraybuffer" });
+
+  return res.data;
+}
+
+// async function getLocation(contents, id) {
+//   let location = null;
+
+//   try {
+//     location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt a", (element) => {
+//       return element.textContent;
+//     });
+
+//     contents.locations[id] = location;
+//   } catch (err) {
+//     location = null;
+//   }
+
+//   return location;
+// }
+
+async function getPredictions(imgBuffer) {
+  const Uint32Array = new Uint8Array(imgBuffer);
+
+  const imgTensor = tf.node.decodeImage(Uint32Array);
+  const model = await cocoSsd.load();
+  const predictions = await model.detect(imgTensor);
+
+  return predictions;
 }
