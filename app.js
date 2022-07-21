@@ -4,21 +4,7 @@ const connectDB = require("./db");
 const express = require("express");
 const cors = require("cors");
 const app = express();
-app.use(
-  cors({
-    origin: true,
-    optionsSuccessStatus: 200,
-    credentials: true,
-  })
-);
-app.options(
-  '*',
-  cors({
-    origin: true,
-    optionsSuccessStatus: 200,
-    credentials: true,
-  })
-);
+app.use(cors());
 
 const mongoose = require("mongoose");
 const index = require("./routes/index");
