@@ -68,11 +68,18 @@ exports.getUser = function (req, res, next) {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
 
-        const browser = await puppeteer.launch({
-          executablePath: '/usr/bin/google-chrome-stable',
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
+        const executablePath = process.env.MODE === 'development' ? '/usr/bin/google-chrome-stable' : null;
+        if (executablePath) {
+          const browser = await puppeteer.launch({
+            executablePath: '/usr/bin/google-chrome-stable',
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          });
+        } else {
+          const browser = await puppeteer.launch({
+            headless: true,
+          });
+        }
         const page = await browser.newPage();
 
         await page.setViewport({ width: 1920, height: 1080 });
@@ -266,7 +273,7 @@ exports.getUser = function (req, res, next) {
       let location = null;
 
       try {
-        location = await post.$eval(".wrapper .content.box-photos-wrapper .box-photos.profile-box-photos.clearfix  div.box-photo .photo-info .photo-location .icon-globe-alt a", (element) => {
+        location = await post.$eval(".wrapper .content.box-photos-wrapper .box-photos.profile-box-photos.clearfix div.box-photo .photo-info .photo-location .icon-globe-alt a", (element) => {
           return element.textContent;
         });
         contents.locations[id] = location;
@@ -374,11 +381,18 @@ exports.createReport = function (req, res, next) {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
 
-        const browser = await puppeteer.launch({
-          executablePath: '/usr/bin/google-chrome-stable',
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
+        const executablePath = process.env.MODE === 'development' ? '/usr/bin/google-chrome-stable' : null;
+        if (executablePath) {
+          const browser = await puppeteer.launch({
+            executablePath: '/usr/bin/google-chrome-stable',
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          });
+        } else {
+          const browser = await puppeteer.launch({
+            headless: true,
+          });
+        }
         const page = await browser.newPage();
 
         await page.setViewport({ width: 1920, height: 1080 });

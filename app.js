@@ -20,18 +20,6 @@ app.options(
   })
 );
 
-// app.use((req, res, next) => { //doesn't send response just adjusts it
-//     res.header("Access-Control-Allow-Origin", "*") //* to give access to any origin
-//     res.header(
-//         "Access-Control-Allow-Headers",
-//         "Origin, X-Requested-With, Content-Type, Accept, Authorization" //to give access to all the headers provided
-//     );
-//     if(req.method === 'OPTIONS'){
-//         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET'); //to give access to all the methods provided
-//         return res.status(200).json({});
-//     }
-//     next(); //so that other routes can take over
-// })
 const mongoose = require("mongoose");
 const index = require("./routes/index");
 const PORT = 8080;
@@ -47,52 +35,6 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// app.use(function (req, res, next) {
-
-//   // Website you wish to allow to connect
-//   res.setHeader('Access-Control-Allow-Origin', 'https://igur.vercel.app');
-
-//   // Request methods you wish to allow
-//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-//   // Request headers you wish to allow
-//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-//   // res.setHeader('Content-Type', 'application/json');
-//   // Set to true if you need the website to include cookies in the requests sent
-//   // to the API (e.g. in case you use sessions)
-//   res.setHeader('Access-Control-Allow-Credentials', true);
-
-//   // Pass to next layer of middleware
-//   next();
-// });
-
-// app.use(function(req, res, next) {
-//   var oneof = false;
-//   if(req.headers.origin) {
-//       res.header('Access-Control-Allow-Origin', req.headers.origin);
-//       oneof = true;
-//   }
-//   if(req.headers['access-control-request-method']) {
-//       res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
-//       oneof = true;
-//   }
-//   if(req.headers['access-control-request-headers']) {
-//       res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
-//       oneof = true;
-//   }
-//   if(oneof) {
-//       res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
-//   }
-
-//   // intercept OPTIONS method
-//   if (oneof && req.method == 'OPTIONS') {
-//       res.send(200);
-//   }
-//   else {
-//       next();
-//   }
-// });
 
 app.listen(PORT, () => {
   console.log("listening on port " + PORT);
