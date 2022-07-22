@@ -51,8 +51,6 @@ exports.getUser = function (req, res, next) {
     const dbUser = await checkUserInDB(req);
 
     if (!dbUser) {
-      console.log("crawl ig");
-
       crawlInstagram();
     } else if(dbUser.username === username) {
       res.status(200).send({
@@ -68,15 +66,17 @@ exports.getUser = function (req, res, next) {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
 
-        const executablePath = process.env.MODE === 'development' ? '/usr/bin/google-chrome-stable' : null;
+        const executablePath = process.env.MODE === 'development' ? null : '/usr/bin/google-chrome-stable';
+        let browser = null;
+
         if (executablePath) {
-          const browser = await puppeteer.launch({
+          browser = await puppeteer.launch({
             executablePath: '/usr/bin/google-chrome-stable',
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
           });
         } else {
-          const browser = await puppeteer.launch({
+          browser = await puppeteer.launch({
             headless: true,
           });
         }
@@ -161,8 +161,14 @@ exports.getUser = function (req, res, next) {
             locations,
           };
           let retrievedPostsHandles = await page.$$("ul.box-photos li");
-
+          console.log("NUMBER_OF_POSTS_TO_RETRIEVE", NUMBER_OF_POSTS_TO_RETRIEVE);
+          console.log("numberOfPosts", numberOfPosts);
+          console.log("retrievedPostsHandles", retrievedPostsHandles.length);
+          
           while (retrievedPostsHandles.length < NUMBER_OF_POSTS_TO_RETRIEVE) {
+            if (numberOfPosts < NUMBER_OF_POSTS_TO_RETRIEVE) {
+              break;
+            }
             await loadMoreButton.evaluate((b) => b.click());
             await page.waitForTimeout(1000);
             retrievedPostsHandles = await page.$$("ul.box-photos li");
@@ -173,6 +179,9 @@ exports.getUser = function (req, res, next) {
           for (let i = NUMBER_OF_POSTS_TO_RETRIEVE; i > 0; i--) {
             const id = numberOfPosts - 1 - count;
             const postElementHandle = retrievedPostsHandles[count];
+
+            if (!postElementHandle) break;
+            
             const description = await postElementHandle.$eval(".photo-info .photo-description", (element) => {
               return element.textContent.trim();
             });
@@ -203,7 +212,24 @@ exports.getUser = function (req, res, next) {
               return element.textContent.trim();
             });
 
-            let location = await getLocation(id);
+            let location = await getLocation(id, postElementHandle);
+
+            // let location = null;
+
+            // try {
+            //   location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
+            //     return element.textContent;
+            //   });
+            //   console.log("inner location1", location);
+            //   contents.locations[id] = location;
+            // } catch (err) {
+            //   console.log("err", err);
+
+            //   location = null;
+            // }
+            // console.log("location1", location);
+      
+            // // return location;
 
             const prediction = await getPredictions(imgBuffer);
 
@@ -251,7 +277,7 @@ exports.getUser = function (req, res, next) {
             }
           };
 
-          await processNaturalLanguage();
+          await processNaturalLanguage(report);
 
           const user = new User({
             username: report.profile.username,
@@ -269,22 +295,6 @@ exports.getUser = function (req, res, next) {
       })();
     }
 
-    async function getLocation(id) {
-      let location = null;
-
-      try {
-        location = await post.$eval(".wrapper .content.box-photos-wrapper .box-photos.profile-box-photos.clearfix div.box-photo .photo-info .photo-location .icon-globe-alt a", (element) => {
-          return element.textContent;
-        });
-        contents.locations[id] = location;
-      } catch (err) {
-        location = null;
-      }
-      console.log("location", location);
-
-      return location;
-    }
-
     async function fetchImageInBuffer(url) {
       const res = await axios({ method: "get", url, responseType: "arraybuffer" });
 
@@ -300,7 +310,7 @@ exports.getUser = function (req, res, next) {
       return predictions;
     }
 
-    async function processNaturalLanguage() {
+    async function processNaturalLanguage(report) {
       const language = require("@google-cloud/language");
       const client = new language.LanguageServiceClient({
         credentials: JSON.parse(process.env.NL_KEY_JSON)
@@ -381,15 +391,17 @@ exports.createReport = function (req, res, next) {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
 
-        const executablePath = process.env.MODE === 'development' ? '/usr/bin/google-chrome-stable' : null;
+        const executablePath = process.env.MODE === 'development' ? null : '/usr/bin/google-chrome-stable';
+        let browser = null;
+
         if (executablePath) {
-          const browser = await puppeteer.launch({
+          browser = await puppeteer.launch({
             executablePath: '/usr/bin/google-chrome-stable',
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
           });
         } else {
-          const browser = await puppeteer.launch({
+          browser = await puppeteer.launch({
             headless: true,
           });
         }
@@ -446,6 +458,9 @@ exports.createReport = function (req, res, next) {
           locations,
         };
         let retrievedPostsHandles = await page.$$("ul.box-photos li");
+        console.log("NUMBER_OF_POSTS_TO_RETRIEVE", NUMBER_OF_POSTS_TO_RETRIEVE);
+        console.log("numberOfPosts", numberOfPosts);
+        console.log("retrievedPostsHandles", retrievedPostsHandles.length);
 
         while (retrievedPostsHandles.length < NUMBER_OF_POSTS_TO_RETRIEVE) {
           await loadMoreButton.evaluate((b) => b.click());
@@ -489,7 +504,23 @@ exports.createReport = function (req, res, next) {
             return element.textContent.trim();
           });
 
-          let location = await getLocation(id);
+          let location = await getLocation(id, postElementHandle);
+          // let location = null;
+
+          // try {
+          //   location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
+          //     return element.textContent;
+          //   });
+          //   console.log("inner location2", location);
+          //   contents.locations[id] = location;
+          // } catch (err) {
+          //   console.log("err", err);
+
+          //   location = null;
+          // }
+          // console.log("location2", location);
+    
+          // // return location;
 
           const prediction = await getPredictions(imgBuffer);
 
@@ -519,7 +550,7 @@ exports.createReport = function (req, res, next) {
           numberOfFollowings,
         };
 
-        await processNaturalLanguage();
+        await processNaturalLanguage(contents);
 
         const newReport = {
           id: reportId,
@@ -553,22 +584,22 @@ exports.createReport = function (req, res, next) {
       })();
     }
 
-    async function getLocation(id) {
-      let location = null;
+    // async function getLocation(id, postElementHandle) {
+    //   let location = null;
 
-      try {
-        location = await post.$eval(".wrapper .content.box-photos-wrapper .box-photos.profile-box-photos.clearfix  div.box-photo .photo-info .photo-location .icon-globe-alt a", (element) => {
-          return element.textContent;
-        });
+    //   try {
+    //     location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
+    //       return element.textContent;
+    //     });
+    //     console.log("inner location2", location);
+    //     contents.locations[id] = location;
+    //   } catch (err) {
+    //     console.log("err::", "location unavailable.");
+    //   }
+    //   console.log("location2", location);
 
-        contents.locations[id] = location;
-      } catch (err) {
-        location = null;
-      }
-      console.log("location", location);
-
-      return location;
-    }
+    //   return location;
+    // }
 
     async function fetchImageInBuffer(url) {
       const res = await axios({ method: "get", url, responseType: "arraybuffer" });
@@ -586,7 +617,7 @@ exports.createReport = function (req, res, next) {
       return predictions;
     }
 
-    async function processNaturalLanguage() {
+    async function processNaturalLanguage(contents) {
       const language = require("@google-cloud/language");
       const client = new language.LanguageServiceClient({
         credentials: JSON.parse(process.env.NL_KEY_JSON)
@@ -596,7 +627,7 @@ exports.createReport = function (req, res, next) {
       let entitiesResult = null;
       let categoriesResult = null;
 
-      for (const post of report.contents.posts) {
+      for (const post of contents.posts) {
         const document = {
           content: post.description,
           type: "PLAIN_TEXT",
@@ -682,6 +713,23 @@ exports.getReport = function (req, res, next) {
     }
   };
 };
+
+async function getLocation(id, postElementHandle) {
+  let location = null;
+
+  try {
+    location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
+      return element.textContent;
+    });
+    console.log("inner location1", location);
+    contents.locations[id] = location;
+  } catch (err) {
+    console.log("err::", "location unavailable.");
+  }
+  console.log("location1", location);
+
+  return location;
+}
 
 async function checkUserInDB(req) {
   const username = req.params.username;
