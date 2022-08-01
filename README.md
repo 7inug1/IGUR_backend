@@ -106,8 +106,8 @@ magnitude는 다음의 경우에 유용합니다: 만약 두 개의 문장이 �
 이 경우에 magnitude 수치가 작다면 전자를 나타낸다고 보면 되고, 그렇지 않다면 후자를 나타낸다고 보면 됩니다.
 
 ## 3. 데이터 분석 - Tensorflow.js - Object Detection (Coco-ssd)
-
-- (토글) 선택 과정
+<details>
+    <summary>(토글) 선택 과정</summary>
     
     Tensorflow.js의 Coco-ssd 모델을 사용한 Object Detection을 결정하기까지 다음의 과정이 있었습니다:
     
@@ -130,6 +130,7 @@ magnitude는 다음의 경우에 유용합니다: 만약 두 개의 문장이 �
     
     사실 3번 Image Segmentation을 통해 좀 더 재밌는 화면을 보여주고 싶었으나, 분석하는 데에 시간도 오래 걸리고, Image Segmentation의 사전학습된 모델이 특정 분야에 특화되어 있거나 불필요한 정보까지 알려줘 범용성이 떨어졌습니다. 그래서 2번 Object Detection으로 진행하게 되었습니다(여기서도 YOLO 및 Coco-ssd 모델로 나뉘어져 있는데 둘의 장단을 따져봤을 때 Coco-ssd가 낫다고 판단하여 이로 진행하였습니다).
     
+</details>
 
 크롤링한 인스타그램 사진 게시글에 어떠한 사물이 있는지 보여주고 싶었습니다. 처음엔 단순히 이미지 소스 url만 긁어와서 새 img 태그에 꽂아넣었습니다. 문제는 이미지 소스가 cdn url이었던 것입니다. 인스타그램 안에서는 예측 가능한 origin이 fetch 요청을 하니 사진을 불러오는 데에 문제가 없었습니다. 하지만 제 서비스에서 fetch를 하려니 예측하지 못한 origin이 이미지를 달라고 요청하여 계속해서 문제를 일으켰습니다.
 
@@ -161,3 +162,5 @@ async function getPredictions(imgBuffer) {
 @justinbieber instagram
 
 받아온 predictions를 가지고 캔버스에 bbox(bounding box) 좌표를 활용해 다음과 같이 그려주었습니다.
+
+[IGUR_frontend readme에서 이어집니다](https://github.com/7inug1/IGUR_frontend)
