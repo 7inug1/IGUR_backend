@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 const express = require("express");
 const router = express.Router();
@@ -19,7 +18,7 @@ router.post("/users/:username/reports/:reportId", UsersController.createReport);
 
 router.get("/users/:username/reports/:reportId", UsersController.getReport);
 
-router.get("/users", UsersController.getUsers); // Leaderboard
+router.get("/users", UsersController.getUsers);
 
 router.post("/users/:username", UsersController.getUser);
 

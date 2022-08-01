@@ -37,17 +37,6 @@ exports.getUser = function (req, res, next) {
     const reportId = req.body.reportId;
     const username = req.params.username;
     let report = null;
-
-    // async function checkUserInDB() {
-    //   try {
-    //     const dbUser = await User.findOne({ username });
-
-    //     return dbUser;
-    //   } catch (err) {
-    //     return next(err);
-    //   }
-    // };
-
     const dbUser = await checkUserInDB(req);
 
     if (!dbUser) {
@@ -161,9 +150,6 @@ exports.getUser = function (req, res, next) {
             locations,
           };
           let retrievedPostsHandles = await page.$$("ul.box-photos li");
-          console.log("NUMBER_OF_POSTS_TO_RETRIEVE", NUMBER_OF_POSTS_TO_RETRIEVE);
-          console.log("numberOfPosts", numberOfPosts);
-          console.log("retrievedPostsHandles", retrievedPostsHandles.length);
           
           while (retrievedPostsHandles.length < NUMBER_OF_POSTS_TO_RETRIEVE) {
             if (numberOfPosts < NUMBER_OF_POSTS_TO_RETRIEVE) {
@@ -213,26 +199,7 @@ exports.getUser = function (req, res, next) {
             });
 
             let location = await getLocation(id, postElementHandle);
-
-            // let location = null;
-
-            // try {
-            //   location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
-            //     return element.textContent;
-            //   });
-            //   console.log("inner location1", location);
-            //   contents.locations[id] = location;
-            // } catch (err) {
-            //   console.log("err", err);
-
-            //   location = null;
-            // }
-            // console.log("location1", location);
-      
-            // // return location;
-
             const prediction = await getPredictions(imgBuffer);
-
             const post = {
               id,
               location,
@@ -285,8 +252,6 @@ exports.getUser = function (req, res, next) {
               report
             ],
           });
-
-          console.log("report", report);
 
           await user.save();
 
@@ -458,9 +423,6 @@ exports.createReport = function (req, res, next) {
           locations,
         };
         let retrievedPostsHandles = await page.$$("ul.box-photos li");
-        console.log("NUMBER_OF_POSTS_TO_RETRIEVE", NUMBER_OF_POSTS_TO_RETRIEVE);
-        console.log("numberOfPosts", numberOfPosts);
-        console.log("retrievedPostsHandles", retrievedPostsHandles.length);
 
         while (retrievedPostsHandles.length < NUMBER_OF_POSTS_TO_RETRIEVE) {
           await loadMoreButton.evaluate((b) => b.click());
@@ -505,25 +467,7 @@ exports.createReport = function (req, res, next) {
           });
 
           let location = await getLocation(id, postElementHandle);
-          // let location = null;
-
-          // try {
-          //   location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
-          //     return element.textContent;
-          //   });
-          //   console.log("inner location2", location);
-          //   contents.locations[id] = location;
-          // } catch (err) {
-          //   console.log("err", err);
-
-          //   location = null;
-          // }
-          // console.log("location2", location);
-    
-          // // return location;
-
           const prediction = await getPredictions(imgBuffer);
-
           const post = {
             id,
             location,
@@ -583,23 +527,6 @@ exports.createReport = function (req, res, next) {
         });
       })();
     }
-
-    // async function getLocation(id, postElementHandle) {
-    //   let location = null;
-
-    //   try {
-    //     location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
-    //       return element.textContent;
-    //     });
-    //     console.log("inner location2", location);
-    //     contents.locations[id] = location;
-    //   } catch (err) {
-    //     console.log("err::", "location unavailable.");
-    //   }
-    //   console.log("location2", location);
-
-    //   return location;
-    // }
 
     async function fetchImageInBuffer(url) {
       const res = await axios({ method: "get", url, responseType: "arraybuffer" });
@@ -721,12 +648,9 @@ async function getLocation(id, postElementHandle) {
     location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt", (element) => {
       return element.textContent;
     });
-    console.log("inner location1", location);
-    contents.locations[id] = location;
   } catch (err) {
     console.log("err::", "location unavailable.");
   }
-  console.log("location1", location);
 
   return location;
 }
@@ -748,22 +672,6 @@ async function fetchImageInBuffer(url) {
 
   return res.data;
 }
-
-// async function getLocation(contents, id) {
-//   let location = null;
-
-//   try {
-//     location = await postElementHandle.$eval(".photo-info .photo-location .icon-globe-alt a", (element) => {
-//       return element.textContent;
-//     });
-
-//     contents.locations[id] = location;
-//   } catch (err) {
-//     location = null;
-//   }
-
-//   return location;
-// }
 
 async function getPredictions(imgBuffer) {
   const Uint32Array = new Uint8Array(imgBuffer);
